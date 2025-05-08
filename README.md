@@ -23,7 +23,7 @@ A simple and small formula parser library for JavaScript running on both of Serv
 
 Apache License 2.0
 
-<br><br>
+<br>
 
 # How to use
 
@@ -214,7 +214,7 @@ const option = {
 };
 ```
 
-<br><br>
+<br>
 
 # Appendix
 
