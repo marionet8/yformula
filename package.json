@@ -1,6 +1,6 @@
 {
   "name": "yformula",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Formula parser library",
   "main": "dist/index.min.js",
   "directories": {

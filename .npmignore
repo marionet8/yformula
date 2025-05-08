@@ -1,0 +1,10 @@
+.git
+.npm
+node_modules/
+doc/
+src/
+test/
+.gitignore
+.npmignore
+package-lock.json
+rollup.config.mjs
