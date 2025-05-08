@@ -1,5 +1,5 @@
 import { _operator } from '../src/operation';
-import { Parser, Evaluator, evaluate } from '../src/main';
+import { Parser, Evaluator, evaluate } from '../src/index';
 
 const option = {
   variable: {

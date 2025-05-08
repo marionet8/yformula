@@ -2867,8 +2867,8 @@ function code(tokens) {
         lines.push(`(async (option) => {`);
         lines.push(...Object.keys($c).filter(x => ['FUNC'].indexOf(x) < 0).map(x => `const ${x} = ${JSON.stringify($c[x])};`));
         lines.push(`const FUNC = { ${Object.keys(FUNC).map(x => `${x}: Math.${FUNC[x].name}`).join(', ')} }`);
-        lines.push(Operator.toString());
-        lines.push(`const _operator = new Operator();`);
+        // lines.push(Operator.toString());
+        // lines.push(`const _operator = new Operator();`);
         lines.push(operate.toString());
         lines.push(_asToken.toString());
         lines.push(`const results = Array(${calculated.length}).fill(NaN);`);
