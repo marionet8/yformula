@@ -35,33 +35,64 @@ $ npm install yformula
 
 ## Quick start
 
+### Server
 ```
-const { Parser, Evaluator, evaluate } = require('yformula');
-
-const option = {
-  variable: {},
-  function: {},
-  callVariable: () => null,
-  callFunction: () => null,
-};
+const { getOption, Parser, Evaluator, evaluate } = require('yformula');
 
 // Parser
-const parser = new Parser(option);
+const parser = new Parser();
 parser.parse('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)').then(result => {
   console.log(result); // output 35.5
 });
 
 // Evaluator
-const evaluator = new Evaluator('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)', option);
+const evaluator = new Evaluator('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)');
 evaluator.calculate().then(result => {
   console.log(result); // output 35.5
 });
 
 // evaluate()
-const evaluated = evaluate('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)');
+const option = getOption();
+const evaluated = evaluate('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)', option);
 evaluated(option).then(result => {
   console.log(result); // output 35.5
 });
+```
+
+### Client (Browser)
+```
+<script src="path/to/yformula.js"></script>
+
+<body>
+    <label for="parser_answer">Parser</label>
+    <input id="parser_answer" type="text"></input>
+    <br>
+    <label for="evaluator_answer">Evaluator</label>
+    <input id="evaluator_answer" type="text"></input>
+    <br>
+    <label for="evaluate_answer">evaluate()</label>
+    <input id="evaluate_answer" type="text"></input>
+</body>
+
+<script>
+    // Parser
+    const parser = new yformula.Parser();
+    parser.parse('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)').then(result => {
+        document.getElementById('parser_answer').value = result; // output 35.5
+    });
+
+    // Evaluator
+    const evaluator = new yformula.Evaluator('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)');
+    evaluator.calculate().then(result => {
+        document.getElementById('evaluator_answer').value = result; // output 35.5
+    });
+
+    // evaluate()
+    const evaluated = yformula.evaluate('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)');
+    evaluated(yformula.getOption({ operator: new yformula.Operator() })).then(result => {
+        document.getElementById('evaluate_answer').value = result; // output 35.5
+    });
+</script>
 ```
 
 ## Parser (option: [Option](#Option)): Parser
