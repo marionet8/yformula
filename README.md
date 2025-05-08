@@ -100,7 +100,7 @@ evaluated(option).then(result => {
 
 `Parser()` returns Parser instance, it initialized by option.
 
-* option: [Option](#Option) - Default option.
+* option: [Option](#Option) - Default option. **(Optional)**
 
 Parser instance has following functions.
 
@@ -115,8 +115,8 @@ Parser instance has following functions.
 
 `Evaluator()` returns Evaluator instance, it parsed inputted formula string.
 
-* formula: string - Formula string to be evaluated.
-* option: [Option](#Option) - Default option.
+* formula: string - Formula string to be evaluated. **(Must)**
+* option: [Option](#Option) - Default option. **(Optional)**
 
 Evaluator instance has following functions.
 
@@ -126,14 +126,15 @@ Evaluator instance has following functions.
 * callVariable(fn: Function) - Set custom variable resolver.
 * callFunction(fn: Function) - Set custom function resolver.
 
-## evaluate (formula: string): Function
+## evaluate (formula: string, option: [Option](#Option)): Function
 <a id="evaluate"></a>
 
 `evaluate()` returns preproessed function of formula string.
 
-* formula: string - Formula string to be evaluated.
+* formula: string - Formula string to be evaluated. **(Must)**
+* option: [Option](#Option) - Default option. **(Must)**
 
-Returned function is created to return calculated result as below.
+Returned function is created to return calculated result as below. `option` must be the same one with `evaluate()`.
 
 ```
 evaluated(option: [Option](#Option)): Promise\<any\>
