@@ -14,10 +14,10 @@ export interface Token {
 export interface Option {
   optimized?: boolean;
   cache?: boolean;
-  variable: Object;
-  function: Object;
+  variable: object;
+  function: object;
   callVariable: Function;
   callFunction: Function;
-  argument?: Object;
+  argument?: object;
   operator?: Operator;
 }
