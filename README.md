@@ -99,16 +99,10 @@ evaluated(option).then(result => {
 
 # [API Reference](doc/API.md)
 
-(Link available only homepage)
-
 <br>
 
 # Appendix
 
 ## [Performance](doc/Performance.md)
 
-(Link available only homepage)
-
 ## [Specification of operators](doc/Operator.md)
-
-(Link available only homepage)
