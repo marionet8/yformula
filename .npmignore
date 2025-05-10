@@ -8,3 +8,4 @@ test/
 .npmignore
 package-lock.json
 rollup.config.mjs
+eslint.config.mjs
