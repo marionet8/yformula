@@ -12,7 +12,7 @@ export const Operator = _Operator;
 export function Option (option): _Option {
   const _option = option instanceof Object ? option : {};
   _option.optimize = typeof _option.optimize === 'boolean' ? _option.optimize : true;
-  _option.cache = typeof _option.optimize === 'boolean' ? _option.cache : true;
+  _option.cache = typeof _option.cache === 'boolean' ? _option.cache : true;
   _option.variable = _option.variable instanceof Object ? _option.variable : {};
   _option.function = _option.function instanceof Object ? _option.function : {};
   _option.callVariable = _option.callVariable instanceof Function ? _option.callVariable : () => null;
