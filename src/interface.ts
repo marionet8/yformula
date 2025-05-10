@@ -12,7 +12,7 @@ export interface Token {
 }
 
 export interface Option {
-  optimized?: boolean;
+  optimize?: boolean;
   cache?: boolean;
   variable: object;
   function: object;

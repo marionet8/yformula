@@ -30,7 +30,7 @@
 
         // evaluate()
         const evaluated = yformula.evaluate('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)');
-        evaluated(yformula.getOption({ operator: new yformula.Operator() })).then(result => {
+        evaluated(yformula.Option({ operator: new yformula.Operator() })).then(result => {
             document.getElementById('evaluate_answer').value = result; // output 35.5
         });
     </script>

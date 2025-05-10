@@ -1,4 +1,4 @@
-const { getOption, Parser, Evaluator, evaluate } = require('../dist/index');
+const { Option, Parser, Evaluator, evaluate } = require('../dist/index');
 
 // Parser
 const parser = new Parser();
@@ -13,7 +13,7 @@ evaluator.calculate().then(result => {
 });
 
 // evaluate()
-const option = getOption();
+const option = Option();
 const evaluated = evaluate('6+3*4-12/2^3+(5-2)*7-17%11+8*sin(PI/180*30)', option);
 evaluated(option).then(result => {
   console.log(result); // output 35.5

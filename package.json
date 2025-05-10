@@ -3,9 +3,6 @@
   "version": "0.0.3",
   "description": "Formula parser library",
   "main": "dist/index.min.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "build:cjs": "rollup src/index.ts -o dist/index.js -f cjs -c & rollup src/index.ts -o dist/index.min.js -f cjs -c -p terser",
     "build:umd": "rollup src/index.ts -o dist/yformula.js -n yformula -f umd -c & rollup src/index.ts -o dist/yformula.min.js -n yformula -f umd -c -p terser",
