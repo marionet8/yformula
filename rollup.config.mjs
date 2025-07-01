@@ -37,5 +37,9 @@ export default {
       }
     }),
     json(),
-  ]
+  ],
+  onwarn: (warning, defaultHandler) => {
+    if (warning.code === 'EVAL') { return }
+    defaultHandler(warning);
+  }
 }

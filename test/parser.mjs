@@ -5,10 +5,12 @@ import { calculate, code } from '../src/calculator';
 
 const option = {
   variable: {
-    'ABC': 17,
+    'ABC': async (name, args) => {
+      return 17;
+    },
   },
   function: {
-    'foo': (args, param) => { return Math.sqrt(args[0]) }
+    'foo': async (args, param) => { return Math.sqrt(args[0]) }
   },
   callVariable: () => null,
   callFunction: () => null,

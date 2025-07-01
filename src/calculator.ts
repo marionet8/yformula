@@ -73,20 +73,25 @@ async function _resolve (tokens: Token[], option: Option, idx: number, results: 
     if (option.cache && tokens[idx].name! in varCache) {
       return varCache[tokens[idx].name!];
     }
-    let value: Token|null = null;
-    if (option.variable instanceof Object && tokens[idx].name! in option.variable) {
-      if (option.variable[tokens[idx].name!] instanceof Function) {
-        value = _asToken(await option.variable[tokens[idx].name!](option.argument));
-      } else {
-        value = _asToken(option.variable[tokens[idx].name!]);
-      }
-    } else if (tokens[idx].name! in VAR) {
-      value = _asToken(VAR[tokens[idx].name!]);
-    } else {
+    let value: Token = { type: TT.UNKNOWN };
+    if (typeof option.callVariable === 'function') {
       value = _asToken(await option.callVariable(tokens[idx].name, option.argument));
     }
-    if (option.cache) {
-      varCache[tokens[idx].name!] = value;
+    if (value.type === TT.UNKNOWN) {
+      if (option.variable instanceof Object && tokens[idx].name! in option.variable) {
+        if (option.variable[tokens[idx].name!] instanceof Function) {
+          value = _asToken(await option.variable[tokens[idx].name!](option.argument));
+        } else {
+          value = _asToken(option.variable[tokens[idx].name!]);
+        }
+      } else if (tokens[idx].name! in VAR) {
+        value = _asToken(VAR[tokens[idx].name!]);
+      }
+    }
+    if (value.type !== TT.UNKNOWN) {
+      if (option.cache) {
+        varCache[tokens[idx].name!] = value;
+      }
     }
     return value;
 
@@ -103,19 +108,24 @@ async function _resolve (tokens: Token[], option: Option, idx: number, results: 
         }
       }
     }
-    let value: Token|null = null;
-    if (option.function instanceof Object && tokens[idx].name! in option.function) {
-      value = _asToken(await option.function[tokens[idx].name!](parameters, option.argument));
-    } else if (tokens[idx].name! in FUNC) {
-      value = _asToken(FUNC[tokens[idx].name!](...parameters));
-    } else {
-      value = _asToken(option.callFunction(tokens[idx].name, parameters, option.argument));
+    let value: Token = { type: TT.UNKNOWN };
+    if (typeof option.callFunction === 'function') {
+      value = _asToken(await option.callFunction(tokens[idx].name, parameters, option.argument));
     }
-    if (option.cache) {
-      if (!funcCache[tokens[idx].name!]) {
-        funcCache[tokens[idx].name!] = [];
+    if (value.type === TT.UNKNOWN) {
+      if (option.function instanceof Object && tokens[idx].name! in option.function) {
+        value = _asToken(await option.function[tokens[idx].name!](parameters, option.argument));
+      } else if (tokens[idx].name! in FUNC) {
+        value = _asToken(FUNC[tokens[idx].name!](...parameters));
       }
-      funcCache[tokens[idx].name!].push({ parameters, value });
+    }
+    if (value.type !== TT.UNKNOWN) {
+      if (option.cache) {
+        if (!funcCache[tokens[idx].name!]) {
+          funcCache[tokens[idx].name!] = [];
+        }
+        funcCache[tokens[idx].name!].push({ parameters, value });
+      }
     }
     return value;
 
@@ -170,16 +180,24 @@ function _resolveAsCode (tokens: Token[], idx: number, results: string[], refs: 
     return `_asToken(Object.fromEntries([${values.join(', ')}]))`;
 
   } else if (tokens[idx].type === TT.VARIABLE) {
-    const strs: string[] = [];
-    strs.push(`_asToken(`);
-    strs.push(`option.variable instanceof Object && '${tokens[idx].name}' in option.variable ? (`);
-    strs.push(`option.variable['${tokens[idx].name}'] instanceof Function ? `);
-    strs.push(`await option.variable['${tokens[idx].name}'](option.argument) : `);
-    strs.push(`option.variable['${tokens[idx].name}']`);
-    strs.push(`) : '${tokens[idx].name}' in VAR ? VAR['${tokens[idx].name}'] : `);
-    strs.push(`await option.callVariable('${tokens[idx].name}', option.argument)`);
-    strs.push(`)`);
-    return strs.join(' \n');
+    const lines: string[] = [];
+    lines.push(`let value;`);
+    lines.push(`if (option.callVariable instanceof Function) {`);
+    lines.push(`  value = await option.callVariable('${tokens[idx].name}', option.argument);`);
+    lines.push(`}`);
+    lines.push(`if (value === null || value === undefined) {`);
+    lines.push(`  if (option.variable instanceof Object && '${tokens[idx].name}' in option.variable) {`);
+    lines.push(`    if (option.variable['${tokens[idx].name}'] instanceof Function) {`);
+    lines.push(`      value = await option.variable['${tokens[idx].name}'](option.argument);`);
+    lines.push(`    } else {`);
+    lines.push(`      value = option.variable['${tokens[idx].name}'];`);
+    lines.push(`    }`);
+    lines.push(`  } else if ('${tokens[idx].name}' in VAR) {`);
+    lines.push(`    value = VAR['${tokens[idx].name}'];`);
+    lines.push(`  }`);
+    lines.push(`}`);
+    lines.push(`return value;`);
+    return `_asToken(await (async () => { ${lines.join(' \n')} })())`;
 
   } else if (tokens[idx].type === TT.FUNCTION) {
     const args: string[] = [];
@@ -195,14 +213,20 @@ function _resolveAsCode (tokens: Token[], idx: number, results: string[], refs: 
         args.push(`NaN`);
       }
     }
-    const strs: string[] = [];
-    strs.push(`_asToken(`);
-    strs.push(`option.function instanceof Object && '${tokens[idx].name}' in option.function ? `);
-    strs.push(`await option.function['${tokens[idx].name}']([${args.join(', ')}], option.argument) : `);
-    strs.push(`'${tokens[idx].name}' in FUNC ? FUNC['${tokens[idx].name}'](${args.join(', ')}) : `);
-    strs.push(`await option.callFunction('${tokens[idx].name}', [${args.join(', ')}], option.argument)`);
-    strs.push(`)`);
-    return strs.join(' \n');
+    const lines: string[] = [];
+    lines.push(`let value;`);
+    lines.push(`if (option.callFunction instanceof Function) {`);
+    lines.push(`  value = await option.callFunction('${tokens[idx].name}', [${args.join(', ')}], option.argument);`);
+    lines.push(`}`);
+    lines.push(`if (value === null || value === undefined) {`);
+    lines.push(`  if (option.function instanceof Object && '${tokens[idx].name}' in option.function) {`);
+    lines.push(`    value = await option.function['${tokens[idx].name}']([${args.join(', ')}], option.argument);`);
+    lines.push(`  } else if ('${tokens[idx].name}' in FUNC) {`);
+    lines.push(`    value = FUNC['${tokens[idx].name}'](${args.join(', ')});`);
+    lines.push(`  }`);
+    lines.push(`}`);
+    lines.push(`return value;`);
+    return `_asToken(await (async () => { ${lines.join(' \n')} })())`;
 
   } else if (tokens[idx].type === TT.BRACKETS) {
     const calculated = _calculateAsCode(tokens[idx].tokens!);
@@ -223,9 +247,9 @@ function _resolveAsCode (tokens: Token[], idx: number, results: string[], refs: 
 
 async function _calculate_main (tokens: Token[], option: Option, idx: number, results: Token[], refs: number[]): Promise<void> {
   const fidx = isNaN(tokens[idx].for!) ? NaN : tokens[idx].for! >= 0 ? tokens[idx].for! : idx + tokens[idx].for! >= 0 ? idx + tokens[idx].for! : NaN;
-  let fval: Token|string|null = null, cval: Token|null = null;
-  fval = isNaN(fidx) ? null : await _resolve(tokens, option, fidx, results, refs);
-  cval = await _resolve(tokens, option, idx, results, refs);
+  // let fval: Token|null, cval: Token;
+  const fval = isNaN(fidx) ? null : await _resolve(tokens, option, fidx, results, refs);
+  const cval = await _resolve(tokens, option, idx, results, refs);
   cval.opcode = tokens[idx].opcode;
   results.push(operate(fval, cval, tokens[idx].opcode, option.operator || _operator));
   if (!isNaN(refs[idx])) {
@@ -250,9 +274,9 @@ async function _calculate_main (tokens: Token[], option: Option, idx: number, re
 
 function _calculateAsCode_main (tokens: Token[], idx: number, results: string[], refs: number[]): void {
   const fidx = isNaN(tokens[idx].for!) ? NaN : tokens[idx].for! >= 0 ? tokens[idx].for! : idx + tokens[idx].for! >= 0 ? idx + tokens[idx].for! : NaN;
-  let fval: string|null = null, cval: string|null = null;
-  fval = isNaN(fidx) ? null : _resolveAsCode(tokens, fidx, results, refs);
-  cval = _resolveAsCode(tokens, idx, results, refs);
+  // let fval: string|null, cval: string;
+  const fval = isNaN(fidx) ? null : _resolveAsCode(tokens, fidx, results, refs);
+  const cval = _resolveAsCode(tokens, idx, results, refs);
   results.push(`operate(${fval}, ${cval}, ${tokens[idx].opcode}, option.operator)`);
   if (!isNaN(refs[idx])) {
     for (let ri = 0; ri < refs.length; ri++) {
